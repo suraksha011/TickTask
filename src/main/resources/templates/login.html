@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TickTask — Log In</title>
+    <link rel="stylesheet" th:href="@{/css/green-theme.css}">
+</head>
+<body class="auth-body">
+
+<div class="auth-card">
+    <div class="auth-logo">T</div>
+    <h1>Welcome back</h1>
+    <p class="auth-tagline">Log in to TickTask</p>
+
+    <p th:if="${param.error}" class="msg error">Invalid username or password.</p>
+    <p th:if="${param.logout}" class="msg success">You've been logged out.</p>
+    <p th:if="${param.expired}" class="msg error">Your session expired — please log in again.</p>
+    <p th:if="${param.registered}" class="msg success">Account created — please log in.</p>
+
+    <form th:action="@{/login}" method="post" class="auth-form">
+        <input type="text" name="username" placeholder="Username" required autofocus>
+        <input type="password" name="password" placeholder="Password" required>
+        <label class="remember-me-row">
+            <input type="checkbox" name="remember-me" value="true"> Remember me for 14 days
+        </label>
+        <button type="submit" class="btn-auth-submit">Log In</button>
+    </form>
+
+    <p class="auth-switch">New here? <a th:href="@{/register}">Create an account</a></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+com\taskmanager\repository\TaskRepository.class
+com\taskmanager\controller\TaskWebController.class
+com\taskmanager\repository\UserRepository.class
+com\taskmanager\controller\AuthController.class
+com\taskmanager\model\Task$Priority.class
+com\taskmanager\TaskManagerWebApplication.class
+com\taskmanager\model\AppUser.class
+com\taskmanager\security\CustomUserDetailsService.class
+com\taskmanager\model\Task.class
+com\taskmanager\config\SecurityConfig.class

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TickTask</title>
+    <link rel="stylesheet" th:href="@{/css/green-theme.css}">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <div class="user-chip">
+                <div class="avatar-circle" th:text="${#strings.substring(currentUser.displayName,0,1)}"></div>
+                <span th:text="${currentUser.displayName}"></span>
+            </div>
+        </div>
+
+        <button class="add-task-btn" data-open-add-task type="button">
+            <span class="plus-circle">+</span> Add task
+        </button>
+
+        <ul class="nav-list">
+            <li><a th:href="@{/(filter=all)}" th:class="${filter == 'all'} ? 'active' : ''">
+                <span><span class="nav-icon">☰</span> All Tasks</span>
+                <span class="nav-badge" th:text="${totalCount}"></span>
+            </a></li>
+            <li><a th:href="@{/(filter=active)}" th:class="${filter == 'active'} ? 'active' : ''">
+                <span><span class="nav-icon">○</span> Active</span>
+            </a></li>
+            <li><a th:href="@{/(filter=completed)}" th:class="${filter == 'completed'} ? 'active' : ''">
+                <span><span class="nav-icon">✓</span> Completed</span>
+            </a></li>
+        </ul>
+
+        <div class="sidebar-section-label">My Projects</div>
+        <ul class="nav-list">
+            <li><a href="#"><span><span class="nav-icon">#</span> TickTask</span></a></li>
+        </ul>
+
+        <div class="theme-picker">
+            <form th:action="@{/profile/theme}" method="post">
+                <label>Accent</label>
+                <select name="clockTheme" onchange="this.form.submit()">
+                    <option value="green" selected>Green (default)</option>
+                </select>
+            </form>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit">Log Out</button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- ===== Main area ===== -->
+    <main class="main-area">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                <div class="project-title">
+                    <span class="project-badge">T</span>
+                    <span>TickTask</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="btn-pill btn-pill-primary" data-open-add-task type="button">+ Add</button>
+            </div>
+        </div>
+
+        <div class="content-scroll">
+
+            <div class="filter-tabs-row">
+                <div class="filter-tabs">
+                    <a th:href="@{/(filter=all)}" th:class="${filter == 'all'} ? 'active' : ''">All</a>
+                    <a th:href="@{/(filter=active)}" th:class="${filter == 'active'} ? 'active' : ''">Active</a>
+                    <a th:href="@{/(filter=completed)}" th:class="${filter == 'completed'} ? 'active' : ''">Completed</a>
+                </div>
+                <span class="task-count" th:text="${totalCount} + ' task(s)'"></span>
+            </div>
+
+            <div class="task-list">
+                <div class="task-row" th:each="task : ${tasks}" th:classappend="${task.completed} ? 'completed' : ''">
+                    <form th:action="@{/tasks/{id}/toggle(id=${task.id})}" method="post" style="display:flex;">
+                        <input type="checkbox" class="task-checkbox" onchange="this.form.submit()" th:checked="${task.completed}">
+                    </form>
+
+                    <div class="task-main">
+                        <div class="task-title" th:text="${task.title}"></div>
+                        <div class="task-desc" th:if="${task.description != null and !task.description.isEmpty()}" th:text="${task.description}"></div>
+                    </div>
+
+                    <div class="task-meta">
+                        <span class="due-chip" th:if="${task.dueDate != null}" th:text="${task.dueDate}"></span>
+                        <span class="priority-chip" th:class="'priority-chip ' + ${task.priority}" th:text="${task.priority}"></span>
+                        <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post">
+                            <button type="submit" class="delete-btn" title="Delete">✕</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="empty-state" th:if="${tasks.isEmpty()}">
+                    <div class="emoji">🌱</div>
+                    <div>No tasks yet — press <strong>Q</strong> or click "Add task" to get started.</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ===== Add Task Modal ===== -->
+<div class="modal-overlay" id="addTaskOverlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>Add a task</h2>
+            <div class="mic-pill"><span class="mic-dot"></span> Quick add</div>
+            <button class="modal-close" data-close-add-task type="button">✕</button>
+        </div>
+
+        <form th:action="@{/tasks/add}" th:object="${newTask}" method="post">
+            <div class="modal-body">
+                <div class="tip-box">
+                    <strong>Tip:</strong> Give your task a clear title, then optionally set a due date and priority.
+                </div>
+                <div class="modal-form-grid">
+                    <input type="text" id="taskTitleInput" th:field="*{title}" placeholder="Task title" required>
+                    <input type="text" th:field="*{description}" placeholder="Description (optional)">
+                    <div class="modal-form-row">
+                        <input type="date" th:field="*{dueDate}">
+                        <select th:field="*{priority}">
+                            <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" data-close-add-task>Cancel</button>
+                <button type="submit" class="btn-submit">Add task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
